@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Object演習2</title>
+</head>
+<body>
+<script>
+// ブログ投稿のオブジェクト例
+const blogPost = {
+    id: 1,
+    title: "JavaScriptの基本",
+    summary: "JavaScriptの基本的な概念について解説します。",
+    content: "JavaScriptはWeb開発において不可欠な言語です。...",
+    author: {
+        name: "山田太郎",
+        profile: "Web開発者でフロントエンド技術に精通しています。",
+        socialMedia: {
+            x: "@yamada",
+            github: "yamada-taro"
+        }
+    },
+    publishedAt: "2023-04-01",
+    comments: [
+        {
+            user: "Alice",
+            comment: "非常にわかりやすい記事でした！"
+        },
+        {
+            user: "Bob",
+            comment: "JavaScriptの基本から学べて良かったです。"
+        }
+    ]
+};
+
+// オブジェクトからデータを取り出す
+console.log(blogPost.title); // "JavaScriptの基本"
+console.log(blogPost.author.name); // "山田太郎"
+console.log(blogPost.comments[0].user); // "Alice"
+
+// オブジェクトに新しいプロパティを追加する
+blogPost.views = 150;
+console.log(blogPost.views); // 150
+
+// 分割代入を使ってデータを取り出す
+const { title, summary } = blogPost;
+console.log(title); // "JavaScriptの基本"
+console.log(summary); // "JavaScriptの基本的な概念について解説します。"
+
+// 演習課題
+// 1. blogPostオブジェクトからauthor（著者）の Xアカウントを抽出して console.logで表示してください。
+// 2. blogPostオブジェクトのcomments配列に新しいコメントを追加してください。
+//    - ヒント: push
+console.log(blogPost.author.socialMedia.x)
+console.log(blogPost["author"]["socialMedia"]["github"])
+
+console.log(blogPost["comments"].push({user:"Yuki", comment:"This is test"}))
+console.log(blogPost["comments"])
+
+
+</script>
+</body>
+</html>

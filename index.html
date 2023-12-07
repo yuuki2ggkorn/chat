@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<link rel="stylesheet" href="css/output.css">
+
+<head>
+    <meta charset="utf-8">
+    <title>Chatアプリ</title>
+</head>
+
+<body>
+
+    <!-- コンテンツ表示画面 -->
+    <div>
+        <div>
+            名前: <input type="text" id="uname">
+        </div>
+        <div>
+            <textarea name="" id="text" cols="30" rows="10"></textarea>
+            <button id="send">送信</button>
+        </div>
+        <div id="output"></div>
+    </div>
+    <!--/ コンテンツ表示画面 -->
+
+    <!-- JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <!-- JQuery -->
+
+    <!--** 以下Firebase **-->
+    <script type="module">
+        // Import the functions you need from the SDKs you need　こっちを下のバージョンと合わせる必要あり
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+        import { getDatabase, ref, push, set, onChildAdded, remove, onChildRemoved }
+            from "https://cdnjs.cloudflare.com/ajax/libs/firebase/10.7.1/firebase-database.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBePAqKA2qdeNiVvPj1kpxpAdi6BqDzgcM",
+            authDomain: "fir-demo-a778c.firebaseapp.com",
+            projectId: "fir-demo-a778c",
+            storageBucket: "fir-demo-a778c.appspot.com",
+            messagingSenderId: "477203387260",
+            appId: "1:477203387260:web:67ce531860c42a90328af9"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+
+        //データベースの参照
+        const db = getDatabase(app);
+        const dbRef = ref(db, "chat"); //chatというルートを作成
+        //console.log(ref)
+        //ref(e, t)={return(e=getModularInstance(e))._checkNotDeleted("ref"),void 0!==t?child(e._root,t):e._root}
+        //console.log(dbRef)
+
+        //データ送信機能 #はid
+        $("#send").on("click", function () {
+            const msg = {
+                uname: $("#uname").val(),
+                text: $("#text").val()
+            }
+            const newPostRef = push(dbRef); //ユニークキーの作成
+            set(newPostRef, msg);
+        });
+
+        $("#text").on("keydown", function(e){
+            if(e.keyCode == 13){
+                console.log("enter!")
+            }
+        })
+
+        //ページ読み込み時にonChildAddedは勝手に実行される
+        onChildAdded(dbRef, function(data){
+            const msg = data.val();
+            const key = data.key;
+            let h = "<p>";
+            h += msg.uname;
+            h += "<br>";
+            h += msg.text;
+            h += "</p>";    
+            $("#output").append(h);
+        })
+
+    </script>
+
+</body>
+
+</html>
