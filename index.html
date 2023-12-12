@@ -1,38 +1,37 @@
 <!DOCTYPE html>
 <html lang="ja">
 <link rel="stylesheet" href="css/output.css">
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
 <head>
+
     <meta charset="utf-8">
     <title>Chatアプリ</title>
 </head>
 
-<body>
+<body class="bg-gray-200 h-screen flex flex-col">
 
-    <!-- コンテンツ表示画面 -->
-    <div>
-        <div>
-            名前: <input type="text" id="uname">
+    <div class="p-4 bg-white shadow-md fixed top-0 w-full text-center">チャット表示画面</div>
+    <!-- チャット表示画面 -->
+    <div id="output" class="overflow-auto flex-grow p-40"></div>
+
+    <!-- テキスト入力エリア -->
+    <div class="p-4 bg-white shadow-md fixed bottom-0 w-full">
+        <div class="flex items-center">
+            <input type="text" id="uname" placeholder="名前" class="flex-grow mr-2 py-2 px-4 rounded border-gray-300 border">
+            <textarea name="" id="text" rows="1" placeholder="メッセージ"
+                class="flex-grow mr-2 py-2 px-4 rounded border-gray-300 border"></textarea>
+            <button id="send" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">送信</button>
         </div>
-        <div>
-            <textarea name="" id="text" cols="30" rows="10"></textarea>
-            <button id="send">送信</button>
-        </div>
-        <div id="output"></div>
     </div>
-    <!--/ コンテンツ表示画面 -->
-
     <!-- JQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <!-- JQuery -->
 
-    <!--** 以下Firebase **-->
+    <!-- Firebase -->
     <script type="module">
-        // Import the functions you need from the SDKs you need　こっちを下のバージョンと合わせる必要あり
+        // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
-        import { getDatabase, ref, push, set, onChildAdded, remove, onChildRemoved }
+        import { getDatabase, ref, push, set, onChildAdded }
             from "https://cdnjs.cloudflare.com/ajax/libs/firebase/10.7.1/firebase-database.js";
 
         // Your web app's Firebase configuration
@@ -50,38 +49,57 @@
 
         //データベースの参照
         const db = getDatabase(app);
-        const dbRef = ref(db, "chat"); //chatというルートを作成
-        //console.log(ref)
-        //ref(e, t)={return(e=getModularInstance(e))._checkNotDeleted("ref"),void 0!==t?child(e._root,t):e._root}
-        //console.log(dbRef)
+        const dbRef = ref(db, "chat");
 
-        //データ送信機能 #はid
+        //データ送信機能
         $("#send").on("click", function () {
             const msg = {
                 uname: $("#uname").val(),
                 text: $("#text").val()
             }
-            const newPostRef = push(dbRef); //ユニークキーの作成
+            const newPostRef = push(dbRef);
             set(newPostRef, msg);
         });
 
-        $("#text").on("keydown", function(e){
-            if(e.keyCode == 13){
+        $("#text").on("keydown", function (e) {
+            if (e.keyCode == 13) {
                 console.log("enter!")
             }
         })
-
-        //ページ読み込み時にonChildAddedは勝手に実行される
-        onChildAdded(dbRef, function(data){
+        $(function () {
+            $('#send').click(function () {
+                if ($('#text').val() === '') {
+                    alert('メッセージを入力してください');
+                    return false;
+                }
+            });
+            $('#text').keydown(function (e) {
+                if (e.keyCode === 13) {
+                    $('#send').click();
+                    return false;
+                }
+            });
+        });
+        // メッセージ表示と削除機能
+        onChildAdded(dbRef, function (data) {
             const msg = data.val();
-            const key = data.key;
-            let h = "<p>";
-            h += msg.uname;
-            h += "<br>";
-            h += msg.text;
-            h += "</p>";    
+            let h = "<div class='p-4 mb-2 bg-white rounded shadow-md'>";
+            h += "<p class='font-bold'>" + msg.uname + "</p>";
+            h += "<p>" + msg.text + "</p>";
+            h += "<button class='delete-msg bg-gray-200 rounded' data-id='" + data.key + "'>削除</button>";
+            h += "</div>";
             $("#output").append(h);
-        })
+        });
+
+        // メッセージ削除機能
+        $(document).on("click", ".delete-msg", function () {
+            const msgId = $(this).data("id");
+            const msgRef = ref(db, "chat/" + msgId);
+            set(msgRef, null);
+
+            // ここで表示中のメッセージを削除
+            $(this).parent().remove();
+        });
 
     </script>
 
